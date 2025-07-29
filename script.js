@@ -5,7 +5,27 @@ document.getElementById("spin").addEventListener("click", async () => {
     `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}`
   );
   const data = await response.json();
-  const movies = data.results;
+  const movies = [
+    {
+      title: "Final Destination Bloodlines",
+      description: "Plagued by a violent recurring nightmare...",
+      poster: "link-to-image",
+      genre: "horror",
+    },
+    {
+      title: "The Love Code",
+      description: "A quirky coder falls in love with her AI assistant...",
+      poster: "link-to-image",
+      genre: "romance",
+    },
+    {
+      title: "Spy & Sprint",
+      description: "An ex-agent becomes a track coach...",
+      poster: "link-to-image",
+      genre: "action",
+    },
+  ];
+
 
   const randomMovie = movies[Math.floor(Math.random() * movies.length)];
 
