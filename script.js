@@ -25,7 +25,12 @@ document.getElementById("spin").addEventListener("click", async () => {
   const loader = document.getElementById("loader");
   loader.style.display = "block";
   const movieContainer = document.getElementById("movie");
-  movieContainer.innerHTML = "";
+  movieContainer.innerHTML = `
+  <h2>${randomMovie.title}</h2>
+  <p><strong>Rating:</strong> ⭐ ${randomMovie.vote_average}/10</p>
+  <p>${randomMovie.overview}</p>
+  <img src="https://image.tmdb.org/t/p/w200${randomMovie.poster_path}" alt="${randomMovie.title} Poster">
+`;
 
   try {
     const genreMap = {
