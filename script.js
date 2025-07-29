@@ -16,43 +16,46 @@ async function loadGenres() {
       select.appendChild(option);
     });
   } catch (err) {
-    console.error("Failed to load genres:", err);
+    console.error("Failed to load genres:", err);1
   }
 }
 
 loadGenres();
-
 document.getElementById("spin").addEventListener("click", async () => {
-  const genreId = document.getElementById("genreSelect").value;
-  let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}`;
-
-  if (genreId) {
-    url += `&with_genres=${genreId}`;
-  }
+  const loader = document.getElementById("loader");
+  loader.style.display = "block";
+  const movieContainer = document.getElementById("movie");
+  movieContainer.innerHTML = "";
 
   try {
-    const res = await fetch(url);
-    const data = await res.json();
+    const genreMap = {
+      action: 28,
+      comedy: 35,
+      drama: 18,
+      horror: 27,
+      romance: 10749,
+    };
+
+    const selectedGenre = document.getElementById("genreSelect").value;
+    const genreId = genreMap[selectedGenre] || "";
+
+    const url = genreId
+      ? `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_genres=${genreId}`
+      : `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}`;
+
+    const response = await fetch(url);
+    const data = await response.json();
     const movies = data.results;
-
-    if (movies.length === 0) {
-      document.getElementById("movie").innerHTML = "<p>No movies found.</p>";
-      return;
-    }
-
     const randomMovie = movies[Math.floor(Math.random() * movies.length)];
 
-    document.getElementById("movie").innerHTML = `
+    movieContainer.innerHTML = `
       <h2>${randomMovie.title}</h2>
       <p>${randomMovie.overview}</p>
-      <img 
-        src="https://image.tmdb.org/t/p/w300${randomMovie.poster_path}" 
-        alt="${randomMovie.title} poster"
-        onerror="this.style.display='none'"
-      >
+      <img src="https://image.tmdb.org/t/p/w200${randomMovie.poster_path}" alt="${randomMovie.title} Poster">
     `;
-  } catch (err) {
-    console.error("Failed to fetch movie:", err);
-    document.getElementById("movie").innerHTML = "<p>Error loading movie.</p>";
+  } catch (error) {
+    movieContainer.innerHTML = "<p>Something went wrong. Try again.</p>";
+  } finally {
+    loader.style.display = "none";
   }
 });
