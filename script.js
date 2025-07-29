@@ -1,48 +1,58 @@
 const API_KEY = "4b9183c91440057cc3ea56d70825ba1b";
 
-// currently hardcoded movie list
-const movies = [
-  {
-    title: "Final Destination Bloodlines",
-    description: "Plagued by a violent recurring nightmare...",
-    poster: "https://via.placeholder.com/200x300?text=Horror",
-    genre: "horror",
-  },
-  {
-    title: "The Love Code",
-    description: "A quirky coder falls in love with her AI assistant...",
-    poster: "https://via.placeholder.com/200x300?text=Romance",
-    genre: "romance",
-  },
-  {
-    title: "Spy & Sprint",
-    description: "An ex-agent becomes a track coach...",
-    poster: "https://via.placeholder.com/200x300?text=Action",
-    genre: "action",
-  },
-];
+async function loadGenres() {
+  try {
+    const res = await fetch(
+      `https://api.themoviedb.org/3/genre/movie/list?api_key=${API_KEY}`
+    );
+    const data = await res.json();
 
-document.getElementById("spin").addEventListener("click", () => {
-  const selectedGenre = document.getElementById("genreSelect").value;
+    const select = document.getElementById("genreSelect");
 
-  const filteredMovies =
-    selectedGenre === "all"
-      ? movies
-      : movies.filter((movie) => movie.genre === selectedGenre);
+    data.genres.forEach((genre) => {
+      const option = document.createElement("option");
+      option.value = genre.id;
+      option.textContent = genre.name;
+      select.appendChild(option);
+    });
+  } catch (err) {
+    console.error("Failed to load genres:", err);
+  }
+}
 
-  const randomIndex = Math.floor(Math.random() * filteredMovies.length);
-  const movie = filteredMovies[randomIndex];
+loadGenres();
 
-  if (!movie) {
-    document.getElementById(
-      "movie"
-    ).innerHTML = `<p>No movies found in this genre 😢</p>`;
-    return;
+document.getElementById("spin").addEventListener("click", async () => {
+  const genreId = document.getElementById("genreSelect").value;
+  let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}`;
+
+  if (genreId) {
+    url += `&with_genres=${genreId}`;
   }
 
-  document.getElementById("movie").innerHTML = `
-    <h2>${movie.title}</h2>
-    <p>${movie.description}</p>
-    <img src="${movie.poster}" alt="${movie.title} Poster">
-  `;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    const movies = data.results;
+
+    if (movies.length === 0) {
+      document.getElementById("movie").innerHTML = "<p>No movies found.</p>";
+      return;
+    }
+
+    const randomMovie = movies[Math.floor(Math.random() * movies.length)];
+
+    document.getElementById("movie").innerHTML = `
+      <h2>${randomMovie.title}</h2>
+      <p>${randomMovie.overview}</p>
+      <img 
+        src="https://image.tmdb.org/t/p/w300${randomMovie.poster_path}" 
+        alt="${randomMovie.title} poster"
+        onerror="this.style.display='none'"
+      >
+    `;
+  } catch (err) {
+    console.error("Failed to fetch movie:", err);
+    document.getElementById("movie").innerHTML = "<p>Error loading movie.</p>";
+  }
 });
