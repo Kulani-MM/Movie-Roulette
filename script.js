@@ -53,7 +53,7 @@ document.getElementById("spin").addEventListener("click", async () => {
     );
 
     const trailerLink = youtubeTrailer
-      ? `<p><a href="https://www.youtube.com/watch?v=${youtubeTrailer.key}" target="_blank" rel="noopener noreferrer">🎥 Watch Trailer</a></p>`
+      ? `<p><a href="https://www.youtube.com/watch?v=${youtubeTrailer.key}" target="_blank" rel="noopener noreferrer"> 🎥 Watch Trailer</a></p>`
       : `<p><em>No trailer available.</em></p>`;
 
     movieContainer.innerHTML = `
