@@ -28,6 +28,18 @@ document.getElementById("spin").addEventListener("click", async () => {
 
 
   const randomMovie = movies[Math.floor(Math.random() * movies.length)];
+  function getRandomMovie() {
+    const selectedGenre = document.getElementById("genreSelect").value;
+
+    const filteredMovies =
+      selectedGenre === "all"
+        ? movies
+        : movies.filter((movie) => movie.genre === selectedGenre);
+
+    const randomIndex = Math.floor(Math.random() * filteredMovies.length);
+    return filteredMovies[randomIndex];
+  }
+
 
   document.getElementById("movie").innerHTML = `
     <h2>${randomMovie.title}</h2>
