@@ -42,11 +42,26 @@ document.getElementById("spin").addEventListener("click", async () => {
 
     const randomMovie = movies[Math.floor(Math.random() * movies.length)];
 
+    // Get trailer info
+    const trailerRes = await fetch(
+      `https://api.themoviedb.org/3/movie/${randomMovie.id}/videos?api_key=${API_KEY}`
+    );
+    const trailerData = await trailerRes.json();
+
+    const youtubeTrailer = trailerData.results.find(
+      (vid) => vid.site === "YouTube" && vid.type === "Trailer"
+    );
+
+    const trailerLink = youtubeTrailer
+      ? `<p><a href="https://www.youtube.com/watch?v=${youtubeTrailer.key}" target="_blank" rel="noopener noreferrer">🎥 Watch Trailer</a></p>`
+      : `<p><em>No trailer available.</em></p>`;
+
     movieContainer.innerHTML = `
       <h2>${randomMovie.title}</h2>
       <p><strong>Rating:</strong> ⭐ ${randomMovie.vote_average}/10</p>
       <p>${randomMovie.overview}</p>
       <img src="https://image.tmdb.org/t/p/w200${randomMovie.poster_path}" alt="${randomMovie.title} Poster">
+      ${trailerLink}
     `;
   } catch (error) {
     console.error(error);
