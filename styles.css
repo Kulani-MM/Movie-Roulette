@@ -25,3 +25,19 @@ select, button {
   margin-top: 1rem;
   border-radius: 10px;
 }
+
+a.trailer-btn {
+  background-color: #e50914;
+  color: white;
+  padding: 10px 15px;
+  text-decoration: none;
+  border-radius: 6px;
+  display: inline-block;
+  margin-top: 15px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+a.trailer-btn:hover {
+  background-color: #b20710;
+}

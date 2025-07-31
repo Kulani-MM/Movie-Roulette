@@ -52,9 +52,10 @@ document.getElementById("spin").addEventListener("click", async () => {
       (vid) => vid.site === "YouTube" && vid.type === "Trailer"
     );
 
-    const trailerLink = youtubeTrailer
-      ? `<p><a href="https://www.youtube.com/watch?v=${youtubeTrailer.key}" target="_blank" rel="noopener noreferrer"> 🎥 Watch Trailer</a></p>`
-      : `<p><em>No trailer available.</em></p>`;
+const trailerLink = youtubeTrailer
+  ? `<p><a href="https://www.youtube.com/watch?v=${youtubeTrailer.key}" target="_blank" rel="noopener noreferrer" class="trailer-btn">🎥 Watch Trailer</a></p>`
+  : `<p><em>No trailer available.</em></p>`;
+
 
     movieContainer.innerHTML = `
       <h2>${randomMovie.title}</h2>
