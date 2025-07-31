@@ -68,7 +68,10 @@ document.getElementById("spin").addEventListener("click", async () => {
         randomMovie.release_date
       ).getFullYear()}</p>
       <p><strong>Runtime:</strong> ${details.runtime} minutes</p>
-      <p><strong>Rating:</strong> ⭐ ${randomMovie.vote_average}/10</p>
+      <p><strong>Rating:</strong> ⭐ ${randomMovie.vote_average.toFixed(
+        1
+      )}/10</p>
+
       <p>${randomMovie.overview}</p>
       <img src="https://image.tmdb.org/t/p/w200${
         randomMovie.poster_path
