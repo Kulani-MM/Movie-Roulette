@@ -71,3 +71,35 @@ const trailerLink = youtubeTrailer
     loader.style.display = "none";
   }
 });
+
+const randomMovie = movies[Math.floor(Math.random() * movies.length)];
+
+// movie details (including runtime)
+const detailsRes = await fetch(
+  `https://api.themoviedb.org/3/movie/${randomMovie.id}?api_key=${API_KEY}`
+);
+const details = await detailsRes.json();
+
+//  trailer info
+const trailerRes = await fetch(
+  `https://api.themoviedb.org/3/movie/${randomMovie.id}/videos?api_key=${API_KEY}`
+);
+const trailerData = await trailerRes.json();
+
+const youtubeTrailer = trailerData.results.find(
+  (vid) => vid.site === "YouTube" && vid.type === "Trailer"
+);
+
+const trailerLink = youtubeTrailer
+  ? `<p><a href="https://www.youtube.com/watch?v=${youtubeTrailer.key}" target="_blank" rel="noopener noreferrer">🎥 Watch Trailer</a></p>`
+  : `<p><em>No trailer available.</em></p>`;
+
+movieContainer.innerHTML = `
+  <h2>${randomMovie.title}</h2>
+  <p><strong>Release Year:</strong> ${new Date(randomMovie.release_date).getFullYear()}</p>
+  <p><strong>Runtime:</strong> ${details.runtime} minutes</p>
+  <p><strong>Rating:</strong> ⭐ ${randomMovie.vote_average}/10</p>
+  <p>${randomMovie.overview}</p>
+  <img src="https://image.tmdb.org/t/p/w200${randomMovie.poster_path}" alt="${randomMovie.title} Poster">
+  ${trailerLink}
+`;
