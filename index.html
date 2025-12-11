@@ -8,15 +8,59 @@
 </head>
 <body>
   <div class="container">
-    <h1> 🎬 Mzansi Movie Roulette</h1>
-    <label for="genreSelect">Pick a genre:</label>
-    <select id="genreSelect">
-      <option value="">🎲 Random</option>
-    </select>
+    <h1>🎬 Mzansi Movie Roulette</h1>
 
-    <button id="spin">Spin for a Movie</button>
-    <div id="loader" style="display: none;">Loading...</div>
-    <div id="movie"></div>
+    <div class="filters-section">
+      <div class="filter-group">
+        <label for="genreSelect">Genre:</label>
+        <select id="genreSelect">
+          <option value="">🎲 Random</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="ratingFilter">Min Rating:</label>
+        <select id="ratingFilter">
+          <option value="0">Any</option>
+          <option value="6">6+</option>
+          <option value="7">7+</option>
+          <option value="8">8+</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="yearFilter">Year:</label>
+        <select id="yearFilter">
+          <option value="">Any Year</option>
+          <option value="2024-2025">2024-2025</option>
+          <option value="2020-2023">2020-2023</option>
+          <option value="2010-2019">2010s</option>
+          <option value="2000-2009">2000s</option>
+          <option value="1990-1999">90s</option>
+          <option value="1980-1989">80s</option>
+        </select>
+      </div>
+    </div>
+
+    <button id="spin" class="spin-btn">🎲 Spin for a Movie</button>
+
+    <div id="loader" class="loader" style="display: none;">
+      <div class="spinner"></div>
+      <p>Finding your next movie...</p>
+    </div>
+
+    <div id="movie" class="movie-card"></div>
+
+    <div id="history-section" class="history-section" style="display: none;">
+      <h3>📜 Recently Spun</h3>
+      <div id="history-list" class="history-list"></div>
+      <button id="clear-history" class="clear-btn">Clear History</button>
+    </div>
+
+    <div id="watchlist-section" class="watchlist-section" style="display: none;">
+      <h3>⭐ My Watchlist</h3>
+      <div id="watchlist" class="watchlist"></div>
+    </div>
   </div>
 
   <script src="script.js"></script>
