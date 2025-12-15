@@ -7,16 +7,87 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="container">
-    <h1> 🎬 Mzansi Movie Roulette</h1>
-    <label for="genreSelect">Pick a genre:</label>
-    <select id="genreSelect">
-      <option value="">🎲 Random</option>
-    </select>
+  <!-- History Sidebar -->
+  <div id="historySidebar" class="history-sidebar">
+    <div class="history-header">
+      <h2>🕒 History</h2>
+      <button id="closeHistory" class="close-btn" aria-label="Close history">&times;</button>
+    </div>
+    <div class="history-actions">
+      <button id="clearHistory" class="clear-btn">Clear All</button>
+    </div>
+    <div id="historyList" class="history-list"></div>
+    <p id="emptyHistory" class="empty-message" style="display: none;">No movies in history yet!</p>
+  </div>
 
-    <button id="spin">Spin for a Movie</button>
-    <div id="loader" style="display: none;">Loading...</div>
-    <div id="movie"></div>
+  <!-- Main Container -->
+  <div class="container">
+    <div class="header">
+      <h1>🎬 Movie Roulette</h1>
+      <div class="header-actions">
+        <div class="theme-switcher">
+          <button id="themeBtn" class="theme-btn" aria-label="Change theme">🎨</button>
+          <div id="themeMenu" class="theme-menu">
+            <button class="theme-option" data-theme="default">Purple 💜</button>
+            <button class="theme-option" data-theme="butter-yellow">Butter Yellow 💛</button>
+            <button class="theme-option" data-theme="olive-green">Olive Green 💚</button>
+          </div>
+        </div>
+        <button id="toggleHistory" class="history-toggle-btn" aria-label="Toggle history">
+          🕒 History <span id="historyCount" class="history-count">0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="filters">
+      <div class="filter-group">
+        <label for="genreSelect">Pick a genre:</label>
+        <select id="genreSelect" aria-label="Select movie genre">
+          <option value="">🎲 Random</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="yearRange">Release Year:</label>
+        <select id="yearRange" aria-label="Select release year range">
+          <option value="">Any Year</option>
+          <option value="2020-2025">2020-2025</option>
+          <option value="2015-2019">2015-2019</option>
+          <option value="2010-2014">2010-2014</option>
+          <option value="2000-2009">2000-2009</option>
+          <option value="1990-1999">1990s</option>
+          <option value="1980-1989">1980s</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="minRating">Minimum Rating:</label>
+        <select id="minRating" aria-label="Select minimum rating">
+          <option value="0">Any Rating</option>
+          <option value="7">7+ ⭐</option>
+          <option value="8">8+ ⭐⭐</option>
+          <option value="9">9+ ⭐⭐⭐</option>
+        </select>
+      </div>
+    </div>
+
+    <button id="spin" class="spin-btn" aria-label="Spin for a random movie">
+      <span class="btn-text">Spin for a Movie</span>
+      <span class="btn-icon">🎲</span>
+    </button>
+
+    <!-- Loading Spinner -->
+    <div id="loader" class="loader" style="display: none;">
+      <div class="spinner"></div>
+      <p>Finding your perfect movie...</p>
+    </div>
+
+    <!-- Error Message -->
+    <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+    <!-- Movie Display -->
+    <div id="movie" class="movie-container"></div>
   </div>
 
   <script src="script.js"></script>
