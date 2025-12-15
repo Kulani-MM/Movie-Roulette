@@ -9,6 +9,8 @@ const state = {
   history: JSON.parse(localStorage.getItem("movieHistory")) || [],
   currentMovie: null,
   isHistorySidebarOpen: false,
+  notInterested: JSON.parse(localStorage.getItem("notInterested")) || [],
+  alreadyWatched: JSON.parse(localStorage.getItem("alreadyWatched")) || [],
 };
 
 // ============================================
@@ -218,8 +220,11 @@ const UI = {
     const genresList = genres ? genres.map((g) => g.name).join(", ") : "N/A";
     const castList = cast ? cast.slice(0, 5).join(", ") : "N/A";
 
+    const isWatched = state.alreadyWatched.includes(movieData.id);
+    const watchedBadge = isWatched ? '<span class="watched-badge">✓ Watched</span>' : '';
+
     elements.movieContainer.innerHTML = `
-      <h2>${title}</h2>
+      <h2>${title} ${watchedBadge}</h2>
       <p><strong>Director:</strong> ${director || "N/A"}</p>
       <p><strong>Release Year:</strong> ${release_year}</p>
       <p><strong>Runtime:</strong> ${runtime ? `${runtime} minutes` : "N/A"}</p>
@@ -229,9 +234,47 @@ const UI = {
       <p>${overview || "No overview available."}</p>
       <img src="${IMAGE_BASE_URL}${poster_path}" alt="${title} Poster" onerror="this.style.display='none'">
       ${trailerLink}
+
+      <div class="action-buttons">
+        <button id="shareBtn" class="action-btn share-btn" aria-label="Share movie">
+          <span>🔗</span> Share
+        </button>
+        <button id="notInterestedBtn" class="action-btn not-interested-btn" aria-label="Not interested">
+          <span>👎</span> Not Interested
+        </button>
+        <button id="alreadyWatchedBtn" class="action-btn ${isWatched ? 'watched-active' : ''}" aria-label="Mark as watched">
+          <span>${isWatched ? '✓' : '👁'}</span> ${isWatched ? 'Watched' : 'Mark as Watched'}
+        </button>
+        <button id="spinAgainBtn" class="action-btn spin-again-btn" aria-label="Spin for another movie">
+          <span>🎲</span> Spin Again
+        </button>
+      </div>
     `;
 
     state.currentMovie = movieData;
+
+    // Add event listeners for action buttons
+    this.attachActionListeners();
+  },
+
+  attachActionListeners() {
+    const shareBtn = document.getElementById("shareBtn");
+    const notInterestedBtn = document.getElementById("notInterestedBtn");
+    const alreadyWatchedBtn = document.getElementById("alreadyWatchedBtn");
+    const spinAgainBtn = document.getElementById("spinAgainBtn");
+
+    if (shareBtn) {
+      shareBtn.addEventListener("click", () => MovieActions.share());
+    }
+    if (notInterestedBtn) {
+      notInterestedBtn.addEventListener("click", () => MovieActions.notInterested());
+    }
+    if (alreadyWatchedBtn) {
+      alreadyWatchedBtn.addEventListener("click", () => MovieActions.toggleWatched());
+    }
+    if (spinAgainBtn) {
+      spinAgainBtn.addEventListener("click", spinForMovie);
+    }
   },
 
   toggleHistorySidebar() {
@@ -242,6 +285,140 @@ const UI = {
       elements.historySidebar.classList.remove("active");
     }
   },
+};
+
+// ============================================
+// MOVIE ACTIONS
+// ============================================
+const MovieActions = {
+  share() {
+    if (!state.currentMovie) return;
+
+    const { title, release_year, vote_average } = state.currentMovie;
+    const shareText = `Check out this movie: ${title} (${release_year}) - ⭐ ${vote_average.toFixed(1)}/10`;
+    const shareUrl = window.location.href;
+
+    // Try native Web Share API first
+    if (navigator.share) {
+      navigator.share({
+        title: `Movie Roulette - ${title}`,
+        text: shareText,
+        url: shareUrl,
+      }).catch((error) => {
+        if (error.name !== 'AbortError') {
+          this.showShareMenu();
+        }
+      });
+    } else {
+      this.showShareMenu();
+    }
+  },
+
+  showShareMenu() {
+    if (!state.currentMovie) return;
+
+    const { title, release_year, vote_average } = state.currentMovie;
+    const shareText = `Check out this movie: ${title} (${release_year}) - ⭐ ${vote_average.toFixed(1)}/10`;
+    const encodedText = encodeURIComponent(shareText);
+    const encodedUrl = encodeURIComponent(window.location.href);
+
+    const shareLinks = {
+      twitter: `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+      whatsapp: `https://wa.me/?text=${encodedText}%20${encodedUrl}`,
+      copy: 'copy'
+    };
+
+    // Create share modal
+    const modal = document.createElement('div');
+    modal.className = 'share-modal';
+    modal.innerHTML = `
+      <div class="share-modal-content">
+        <h3>Share this movie</h3>
+        <div class="share-options">
+          <button class="share-option-btn" data-platform="twitter">
+            <span>🐦</span> Twitter
+          </button>
+          <button class="share-option-btn" data-platform="facebook">
+            <span>📘</span> Facebook
+          </button>
+          <button class="share-option-btn" data-platform="whatsapp">
+            <span>💬</span> WhatsApp
+          </button>
+          <button class="share-option-btn" data-platform="copy">
+            <span>📋</span> Copy Link
+          </button>
+        </div>
+        <button class="close-share-btn">Close</button>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Add event listeners
+    modal.querySelectorAll('.share-option-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const platform = btn.getAttribute('data-platform');
+        if (platform === 'copy') {
+          navigator.clipboard.writeText(shareText + ' ' + window.location.href);
+          btn.innerHTML = '<span>✓</span> Copied!';
+          setTimeout(() => {
+            modal.remove();
+          }, 1000);
+        } else {
+          window.open(shareLinks[platform], '_blank', 'width=600,height=400');
+          modal.remove();
+        }
+      });
+    });
+
+    modal.querySelector('.close-share-btn').addEventListener('click', () => {
+      modal.remove();
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.remove();
+      }
+    });
+  },
+
+  notInterested() {
+    if (!state.currentMovie) return;
+
+    const movieId = state.currentMovie.id;
+
+    if (!state.notInterested.includes(movieId)) {
+      state.notInterested.push(movieId);
+      localStorage.setItem("notInterested", JSON.stringify(state.notInterested));
+    }
+
+    // Show feedback
+    UI.showError("Movie marked as not interested. You won't see it again!");
+
+    // Spin for a new movie
+    setTimeout(() => {
+      spinForMovie();
+    }, 1000);
+  },
+
+  toggleWatched() {
+    if (!state.currentMovie) return;
+
+    const movieId = state.currentMovie.id;
+    const index = state.alreadyWatched.indexOf(movieId);
+
+    if (index === -1) {
+      state.alreadyWatched.push(movieId);
+    } else {
+      state.alreadyWatched.splice(index, 1);
+    }
+
+    localStorage.setItem("alreadyWatched", JSON.stringify(state.alreadyWatched));
+
+    // Re-render the movie to update the button
+    UI.displayMovie(state.currentMovie);
+  }
 };
 
 // ============================================
@@ -280,7 +457,16 @@ async function spinForMovie() {
       return;
     }
 
-    const randomMovie = movies[Math.floor(Math.random() * movies.length)];
+    // Filter out movies marked as "not interested"
+    const filteredMovies = movies.filter(movie => !state.notInterested.includes(movie.id));
+
+    if (filteredMovies.length === 0) {
+      UI.hideLoader();
+      UI.showError("No new movies found. Try clearing your 'Not Interested' list or changing filters!");
+      return;
+    }
+
+    const randomMovie = filteredMovies[Math.floor(Math.random() * filteredMovies.length)];
 
     // Fetch additional details
     const [details, videos, credits] = await Promise.all([
